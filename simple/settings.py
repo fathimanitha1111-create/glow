@@ -25,7 +25,7 @@ allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
 if allowed_hosts_env:
     ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
 else:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]', 'testserver']
+    ALLOWED_HOSTS = ['*']
 
 # Always ensure local development hosts are accessible during DEBUG mode
 if DEBUG:
@@ -134,6 +134,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Media files (Product uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
 
 # Authentication URLs
 LOGIN_URL = 'login'
