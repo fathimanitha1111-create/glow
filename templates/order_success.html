@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed #{{ order.id }} | Glow &amp; Care Skincare{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container" style="max-width: 750px;">
+    
+    <div class="bg-white p-4 p-md-5 rounded-4 border shadow-sm text-center">
+      
+      <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+        <i class="bi bi-check-lg display-5"></i>
+      </div>
+
+      <span class="badge bg-success-subtle text-success text-uppercase fw-bold px-3 py-1 rounded-pill mb-2">
+        Order Placed Successfully
+      </span>
+
+      <h1 class="brand-font display-6 fw-bold mb-2">Thank you, {{ order.full_name }}!</h1>
+      <p class="text-muted">
+        Your order <strong>#{{ order.id }}</strong> has been confirmed. A confirmation receipt has been logged for delivery to <strong>{{ order.city }}</strong>.
+      </p>
+
+      <!-- Order Summary Box -->
+      <div class="p-4 bg-light rounded-4 border my-4 text-start">
+        <h5 class="fw-bold mb-3 pb-2 border-bottom">Order Details</h5>
+        
+        <div class="row g-3 small mb-3">
+          <div class="col-sm-6">
+            <span class="text-muted d-block">Order Number:</span>
+            <strong>#{{ order.id }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted d-block">Order Date:</span>
+            <strong>{{ order.created_at|date:"M d, Y - h:i A" }}</strong>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted d-block">Delivery Address:</span>
+            <span>{{ order.address }}, {{ order.city }} - {{ order.postal_code }}</span>
+          </div>
+          <div class="col-sm-6">
+            <span class="text-muted d-block">Contact Phone:</span>
+            <span>{{ order.phone }}</span>
+          </div>
+        </div>
+
+        <h6 class="fw-bold mb-2">Items Ordered:</h6>
+        <div class="border-top pt-2">
+          {% for item in order.items.all %}
+            <div class="d-flex justify-content-between align-items-center py-1">
+              <span>{{ item.quantity }}x {{ item.product.name }}</span>
+              <span class="fw-bold">{{ item.formatted_subtotal }}</span>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top mt-3">
+          <span class="fw-bold fs-6">Grand Total:</span>
+          <span class="fw-bold fs-5 text-success-emphasis">{{ order.formatted_total }}</span>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-center gap-3">
+        <a href="{% url 'shop' %}" class="btn btn-glow-primary px-4 py-2">
+          Continue Shopping &rarr;
+        </a>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary px-4 py-2">
+          Back to Home
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+{% endblock %}

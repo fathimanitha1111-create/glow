@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Glow &amp; Care | Kind to Sensitive Skin Skincare{% endblock %}
+
+{% block content %}
+<!-- Bootstrap 5 Skincare Hero Carousel -->
+<section class="hero-carousel-section" aria-label="Hero Carousel Banner">
+  <div id="skincareHeroCarousel" class="carousel slide hero-carousel carousel-fade" data-bs-ride="carousel" data-bs-interval="5000">
+    
+    <!-- Carousel Indicators -->
+    <div class="carousel-indicators">
+      {% for slide in carousel_slides %}
+        <button type="button" data-bs-target="#skincareHeroCarousel" data-bs-slide-to="{{ forloop.counter0 }}" class="{% if forloop.first %}active{% endif %}" aria-current="{% if forloop.first %}true{% else %}false{% endif %}" aria-label="Slide {{ forloop.counter }}"></button>
+      {% endfor %}
+    </div>
+
+    <!-- Carousel Items -->
+    <div class="carousel-inner">
+      {% for slide in carousel_slides %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <img src="{{ slide.image }}" class="d-block w-100" alt="{{ slide.title }}">
+          <div class="carousel-caption-custom">
+            <span class="badge bg-success-subtle text-success border border-success-subtle rounded-pill px-3 py-1 mb-3 text-uppercase fw-bold letter-spacing-1">
+              {{ slide.badge }}
+            </span>
+            <h1 class="brand-font">{{ slide.title }}</h1>
+            <p>{{ slide.subtitle }}</p>
+            <div class="d-flex gap-3 mt-4">
+              <a href="{{ slide.button_url }}" class="btn btn-glow-primary px-4 py-2 fs-6">
+                {{ slide.button_text }} &rarr;
+              </a>
+              <a href="{% url 'shop' %}" class="btn btn-outline-light rounded-pill px-4 py-2 fs-6">
+                View All Products
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Carousel Controls (Previous / Next) -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#skincareHeroCarousel" data-bs-slide="prev" aria-label="Previous Slide">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#skincareHeroCarousel" data-bs-slide="next" aria-label="Next Slide">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+</section>
+
+<!-- Trust & Value Pillars Bar -->
+<section class="py-4 border-bottom bg-white" aria-label="Brand Pillars">
+  <div class="container">
+    <div class="row g-3 text-center text-md-start">
+      <div class="col-md-3 col-6 d-flex align-items-center gap-3 justify-content-center justify-content-md-start">
+        <span class="fs-2 text-success">🧪</span>
+        <div>
+          <h6 class="mb-0 fw-bold">0% Harsh Chemicals</h6>
+          <small class="text-muted">No parabens, dyes, or harsh perfumes</small>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 d-flex align-items-center gap-3 justify-content-center justify-content-md-start">
+        <span class="fs-2 text-success">🩺</span>
+        <div>
+          <h6 class="mb-0 fw-bold">Dermatologist Tested</h6>
+          <small class="text-muted">Certified hypoallergenic &amp; non-comedogenic</small>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 d-flex align-items-center gap-3 justify-content-center justify-content-md-start">
+        <span class="fs-2 text-success">🐰</span>
+        <div>
+          <h6 class="mb-0 fw-bold">100% Cruelty-Free</h6>
+          <small class="text-muted">Certified vegan, never tested on animals</small>
+        </div>
+      </div>
+      <div class="col-md-3 col-6 d-flex align-items-center gap-3 justify-content-center justify-content-md-start">
+        <span class="fs-2 text-success">♻️</span>
+        <div>
+          <h6 class="mb-0 fw-bold">Eco-Kind Packaging</h6>
+          <small class="text-muted">Post-consumer recycled &amp; recyclable</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Category Showcase Section -->
+<section class="py-5" style="background-color: #fafaf7;" aria-labelledby="categories-heading">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="text-uppercase fw-bold text-success small letter-spacing-2">Targeted Essentials</span>
+      <h2 id="categories-heading" class="brand-font display-6 fw-bold text-success-emphasis mt-1">Kind Solutions for Every Routine</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">
+        Thoughtfully crafted formulas that work harmoniously together to cleanse, hydrate, and protect sensitive complexions.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <!-- Category 1: Face Wash -->
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1556228720-195a672e8a03?w=700&auto=format&fit=crop&q=80" class="card-img-top" alt="Gentle Face Washes" style="height: 220px; object-fit: cover;">
+          <div class="card-body p-4 d-flex flex-column">
+            <h3 class="h5 fw-bold brand-font">Gentle Face Washes</h3>
+            <p class="text-muted small flex-grow-1">
+              100% soap-free cleansers that remove impurities and pollution without stripping your skin's natural moisture barrier.
+            </p>
+            <a href="{% url 'category' 'face-wash' %}" class="fw-bold text-success text-decoration-none mt-2">
+              Explore Cleansers &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category 2: Moisturizers -->
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+          <img src="{% static 'images/replenishing-rich-moisturizer.jpg' %}" class="card-img-top" alt="Barrier Moisturizers" style="height: 220px; object-fit: cover;">
+          <div class="card-body p-4 d-flex flex-column">
+            <h3 class="h5 fw-bold brand-font">Barrier Moisturizers</h3>
+            <p class="text-muted small flex-grow-1">
+              Enriched with Pro-Vitamin B5 and botanical ceramides to restore comfort and seal in hydration for up to 24 hours.
+            </p>
+            <a href="{% url 'category' 'moisturizers' %}" class="fw-bold text-success text-decoration-none mt-2">
+              Explore Moisturizers &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category 3: Serums -->
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+          <img src="{% static 'images/booster-serum-banner.jpg' %}" class="card-img-top" alt="Booster Serums" style="height: 220px; object-fit: cover;">
+          <div class="card-body p-4 d-flex flex-column">
+            <h3 class="h5 fw-bold brand-font">Booster Serums</h3>
+            <p class="text-muted small flex-grow-1">
+              High-potency, low-irritation serums with pure Niacinamide, Hyaluronic Acid, and Cica to calm irritation and restore radiance.
+            </p>
+            <a href="{% url 'category' 'serums' %}" class="fw-bold text-success text-decoration-none mt-2">
+              Explore Serums &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bestselling Products (Dynamic from Database) -->
+<section class="py-5 bg-white" aria-labelledby="bestsellers-heading">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-2">
+      <div>
+        <span class="text-uppercase fw-bold text-success small letter-spacing-2">Most Loved</span>
+        <h2 id="bestsellers-heading" class="brand-font display-6 fw-bold text-success-emphasis mt-1">Our Kind Bestsellers</h2>
+        <p class="text-muted mb-0">Dermatologist tested and loved by sensitive skin across India.</p>
+      </div>
+      <a href="{% url 'shop' %}" class="btn btn-glow-outline btn-sm">View All Catalog &rarr;</a>
+    </div>
+
+    <div class="row g-4">
+      {% for product in bestsellers %}
+        <div class="col-lg-3 col-md-6">
+          <div class="card card-product shadow-sm">
+            <div class="position-relative">
+              {% if product.badge %}
+                <span class="badge bg-success position-absolute top-0 start-0 m-3 rounded-pill px-3 py-1 shadow-sm">
+                  {{ product.badge }}
+                </span>
+              {% endif %}
+              <a href="{% url 'product_detail' product.pk %}">
+                <img src="{{ product.get_image_url }}" class="card-product-img" alt="{{ product.name }}">
+              </a>
+            </div>
+            
+            <div class="p-3 d-flex flex-column flex-grow-1">
+              <span class="text-muted small text-uppercase fw-bold">{{ product.category.name }}</span>
+              <h4 class="h6 fw-bold mt-1 mb-2">
+                <a href="{% url 'product_detail' product.pk %}" class="text-dark text-decoration-none">
+                  {{ product.name }}
+                </a>
+              </h4>
+              <p class="text-muted small mb-2 flex-grow-1">{{ product.ingredients|truncatewords:6 }}</p>
+              
+              <!-- Ratings -->
+              <div class="d-flex align-items-center small text-warning mb-2">
+                <span>★★★★★</span>
+                <span class="text-muted ms-1">({{ product.rating }})</span>
+              </div>
+
+              <!-- Price & Add to Bag -->
+              <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+                <div>
+                  <span class="product-price-inr">{{ product.formatted_price }}</span>
+                  {% if product.original_price %}
+                    <span class="original-price-inr">{{ product.formatted_original_price }}</span>
+                  {% endif %}
+                </div>
+                
+                <form method="POST" action="{% url 'add_to_cart' product.pk %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="quantity" value="1">
+                  <input type="hidden" name="next" value="{{ request.path }}">
+                  <button type="submit" class="btn btn-sm btn-glow-primary" {% if not product.in_stock %}disabled{% endif %}>
+                    {% if product.in_stock %}
+                      <i class="bi bi-bag-plus"></i> Add
+                    {% else %}
+                      Sold Out
+                    {% endif %}
+                  </button>
+                </form>
+              </div>
+
+              {% if user.is_staff or user.is_superuser %}
+                <div class="mt-2 text-end">
+                  <a href="{% url 'product_edit' product.pk %}" class="badge bg-secondary-subtle text-secondary text-decoration-none">
+                    <i class="bi bi-pencil"></i> Edit Product
+                  </a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center py-5">
+          <p class="text-muted">No products found in the database. Please run the database setup or add products.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Skin Barrier Science Routine Section -->
+<section class="py-5" style="background-color: #f9f6f0;" aria-label="3-Step Gentle Routine">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="text-uppercase fw-bold text-success small letter-spacing-2">The Glow Routine</span>
+      <h2 class="brand-font display-6 fw-bold text-success-emphasis mt-1">Simple 3-Step Sensitive Skin Care</h2>
+      <p class="text-muted mx-auto" style="max-width: 600px;">
+        Healthy skin doesn't need 10 complicated steps. Just three kind, potent steps formulated without stripping alcohols or artificial perfumes.
+      </p>
+    </div>
+
+    <div class="row g-4 text-center">
+      <div class="col-md-4">
+        <div class="p-4 bg-white rounded-4 shadow-sm h-100">
+          <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center fw-bold fs-4 mb-3" style="width: 55px; height: 55px;">
+            1
+          </div>
+          <h4 class="brand-font fw-bold">Cleanse Gently</h4>
+          <p class="text-muted small">
+            Wash away pollutants and makeup with triple-purified water and Pro-Vitamin B5 without ever feeling tight or dry.
+          </p>
+          <a href="{% url 'category' 'face-wash' %}" class="small text-success fw-bold text-decoration-none">Step 1 Cleansers &rarr;</a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-4 bg-white rounded-4 shadow-sm h-100">
+          <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center fw-bold fs-4 mb-3" style="width: 55px; height: 55px;">
+            2
+          </div>
+          <h4 class="brand-font fw-bold">Hydrate &amp; Lock</h4>
+          <p class="text-muted small">
+            Replenish essential ceramides and plant-based squalane for up to 24 hours of weightless comfort and barrier repair.
+          </p>
+          <a href="{% url 'category' 'moisturizers' %}" class="small text-success fw-bold text-decoration-none">Step 2 Moisturizers &rarr;</a>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-4 bg-white rounded-4 shadow-sm h-100">
+          <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center fw-bold fs-4 mb-3" style="width: 55px; height: 55px;">
+            3
+          </div>
+          <h4 class="brand-font fw-bold">Treat &amp; Calm</h4>
+          <p class="text-muted small">
+            Soothe stubborn redness, strengthen capillaries, and clarify with non-irritating Niacinamide and soothing Cica drops.
+          </p>
+          <a href="{% url 'category' 'serums' %}" class="small text-success fw-bold text-decoration-none">Step 3 Serums &rarr;</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Customer Reviews Section -->
+<section class="py-5 bg-white" aria-label="Customer Reviews">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="text-uppercase fw-bold text-success small letter-spacing-2">Kind Testimonials</span>
+      <h2 class="brand-font display-6 fw-bold text-success-emphasis mt-1">Loved by Sensitive Complexions</h2>
+      <p class="text-muted">Real stories from people who finally found calm, happy skin.</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="p-4 rounded-4 border bg-light h-100 d-flex flex-column">
+          <div class="text-warning mb-2">★★★★★</div>
+          <p class="small text-muted flex-grow-1">
+            "I've struggled with redness for years and almost every cleanser left my face stinging. Glow &amp; Care's Refreshing Gel Wash was a complete game changer. It feels like pure comfort."
+          </p>
+          <div class="d-flex align-items-center gap-3 mt-2">
+            <img src="{% static 'images/skin-result-sarah.jpg' %}" alt="Pooja Sharma - Glowing skin result" class="rounded-circle shadow-sm" style="width: 44px; height: 44px; object-fit: cover;">
+            <div>
+              <div class="fw-bold small text-dark">Pooja Sharma</div>
+              <small class="text-muted">Verified Buyer • Mumbai</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-4 rounded-4 border bg-light h-100 d-flex flex-column">
+          <div class="text-warning mb-2">★★★★★</div>
+          <p class="small text-muted flex-grow-1">
+            "The Replenishing Rich Moisturizer is magical in dry winters. It absorbs completely without any sticky feeling and keeps my sensitive skin smooth all day long."
+          </p>
+          <div class="d-flex align-items-center gap-3 mt-2">
+            <img src="{% static 'images/skin-result-emily.jpg' %}" alt="Ananya Desai - Hydrated barrier result" class="rounded-circle shadow-sm" style="width: 44px; height: 44px; object-fit: cover;">
+            <div>
+              <div class="fw-bold small text-dark">Ananya Desai</div>
+              <small class="text-muted">Verified Buyer • Bengaluru</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="p-4 rounded-4 border bg-light h-100 d-flex flex-column">
+          <div class="text-warning mb-2">★★★★★</div>
+          <p class="small text-muted flex-grow-1">
+            "The 10% Niacinamide serum has reduced my pore congestion within two weeks without any irritation. 100% recommended for sensitive, acne-prone skin!"
+          </p>
+          <div class="d-flex align-items-center gap-3 mt-2">
+            <img src="{% static 'images/skin-result-aria.jpg' %}" alt="Rohit Verma - Clear skin result" class="rounded-circle shadow-sm" style="width: 44px; height: 44px; object-fit: cover;">
+            <div>
+              <div class="fw-bold small text-dark">Rohit Verma</div>
+              <small class="text-muted">Verified Buyer • New Delhi</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Bootstrap FAQ Accordion -->
+<section class="py-5" style="background-color: #fafaf7;" aria-label="Frequently Asked Questions">
+  <div class="container" style="max-width: 800px;">
+    <div class="text-center mb-4">
+      <span class="text-uppercase fw-bold text-success small letter-spacing-2">Got Questions?</span>
+      <h2 class="brand-font display-6 fw-bold text-success-emphasis mt-1">Frequently Asked Questions</h2>
+    </div>
+
+    <div class="accordion shadow-sm rounded-4 overflow-hidden" id="faqAccordion">
+      <div class="accordion-item border-0 border-bottom">
+        <h2 class="accordion-header" id="headingOne">
+          <button class="accordion-button fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            What makes Glow &amp; Care suitable for sensitive skin?
+          </button>
+        </h2>
+        <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+          <div class="accordion-body small text-muted">
+            All our formulas are 100% free of artificial perfumes, colors, drying alcohols, parabens, and harsh sulfates. Every batch undergoes rigorous clinical dermatological patch testing on sensitive skin types.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item border-0 border-bottom">
+        <h2 class="accordion-header" id="headingTwo">
+          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            Are Glow &amp; Care products vegan and cruelty-free?
+          </button>
+        </h2>
+        <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+          <div class="accordion-body small text-muted">
+            Yes! We are proud to be 100% cruelty-free and certified vegan. We never test any raw ingredients or finished products on animals.
+          </div>
+        </div>
+      </div>
+
+      <div class="accordion-item border-0">
+        <h2 class="accordion-header" id="headingThree">
+          <button class="accordion-button collapsed fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+            What is the delivery time and shipping policy?
+          </button>
+        </h2>
+        <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+          <div class="accordion-body small text-muted">
+            We offer FREE express delivery across India on all orders over ₹999. Standard orders typically arrive within 2 to 4 business days.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

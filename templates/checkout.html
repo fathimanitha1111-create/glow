@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout | Glow &amp; Care Skincare{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container" style="max-width: 950px;">
+    
+    <div class="mb-4 text-center">
+      <span class="badge bg-success-subtle text-success text-uppercase fw-bold px-3 py-1 rounded-pill">
+        🔒 Secure Express Checkout
+      </span>
+      <h1 class="brand-font display-6 fw-bold mt-2">Delivery &amp; Order Details</h1>
+      <p class="text-muted small">Please enter your shipping address to receive your gentle skincare products.</p>
+    </div>
+
+    <div class="row g-5">
+      
+      <!-- Checkout Form (Col 7) -->
+      <div class="col-lg-7">
+        <div class="bg-white p-4 p-md-5 rounded-4 border shadow-sm">
+          <h4 class="brand-font fw-bold mb-4 pb-2 border-bottom">1. Shipping Information</h4>
+          
+          <form method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">Full Name *</label>
+              {{ form.full_name }}
+              {% if form.full_name.errors %}
+                <div class="text-danger small">{{ form.full_name.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted">Email Address *</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                  <div class="text-danger small">{{ form.email.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted">Mobile Number *</label>
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                  <div class="text-danger small">{{ form.phone.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label small fw-bold text-muted">Complete Street Address *</label>
+              {{ form.address }}
+              {% if form.address.errors %}
+                <div class="text-danger small">{{ form.address.errors }}</div>
+              {% endif %}
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted">City / Town *</label>
+                {{ form.city }}
+                {% if form.city.errors %}
+                  <div class="text-danger small">{{ form.city.errors }}</div>
+                {% endif %}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold text-muted">PIN / Postal Code *</label>
+                {{ form.postal_code }}
+                {% if form.postal_code.errors %}
+                  <div class="text-danger small">{{ form.postal_code.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+
+            <h4 class="brand-font fw-bold mb-3 pb-2 border-bottom">2. Payment Method</h4>
+            <div class="p-3 mb-4 rounded-3 border bg-light d-flex align-items-center gap-3">
+              <input class="form-check-input mt-0" type="radio" name="payment_method" id="cod" checked>
+              <label class="form-check-label d-flex align-items-center gap-2" for="cod">
+                <i class="bi bi-cash-stack text-success fs-5"></i>
+                <div>
+                  <span class="fw-bold d-block">Demo Cash on Delivery (COD)</span>
+                  <small class="text-muted">Pay comfortably upon doorstep delivery across India.</small>
+                </div>
+              </label>
+            </div>
+
+            <button type="submit" class="btn btn-glow-primary w-100 py-3 fs-6">
+              Complete &amp; Confirm Order ({{ formatted_grand_total }}) &rarr;
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Order Review Sidebar (Col 5) -->
+      <div class="col-lg-5">
+        <div class="p-4 bg-white rounded-4 border shadow-sm sticky-top" style="top: 90px;">
+          <h4 class="brand-font fw-bold mb-3 pb-2 border-bottom">Order Review</h4>
+          
+          <div class="mb-3" style="max-height: 280px; overflow-y: auto;">
+            {% for item in cart_items %}
+              <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+                <div class="d-flex align-items-center gap-2">
+                  <img src="{{ item.product.get_image_url }}" alt="{{ item.product.name }}" class="rounded-2 border" style="width: 45px; height: 45px; object-fit: cover;">
+                  <div>
+                    <h6 class="mb-0 small fw-bold">{{ item.product.name }}</h6>
+                    <small class="text-muted">Qty: {{ item.quantity }}</small>
+                  </div>
+                </div>
+                <span class="small fw-bold">{{ item.product.formatted_price }}</span>
+              </div>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex justify-content-between mb-2 small">
+            <span class="text-muted">Subtotal</span>
+            <span class="fw-bold">₹{{ subtotal }}</span>
+          </div>
+
+          <div class="d-flex justify-content-between mb-3 small">
+            <span class="text-muted">Delivery</span>
+            <span class="fw-bold {% if shipping_cost == 0 %}text-success{% endif %}">
+              {% if shipping_cost == 0 %}FREE{% else %}₹{{ shipping_cost }}{% endif %}
+            </span>
+          </div>
+
+          <hr class="my-2">
+
+          <div class="d-flex justify-content-between align-items-baseline mb-3">
+            <span class="h6 fw-bold mb-0">Total Due</span>
+            <span class="h4 fw-bold text-success-emphasis mb-0">{{ formatted_grand_total }}</span>
+          </div>
+
+          <div class="alert alert-success-subtle text-success small mb-0 rounded-3">
+            <i class="bi bi-shield-check me-1"></i>
+            Dermatologically tested formulations safely dispatched in eco-friendly protective packaging.
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+{% endblock %}

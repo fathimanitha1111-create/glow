@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action_title }} | Glow &amp; Care Admin{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container" style="max-width: 800px;">
+    
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+      <div>
+        <span class="badge bg-success-subtle text-success text-uppercase fw-bold px-3 py-1 rounded-pill">
+          Product Management
+        </span>
+        <h1 class="brand-font display-6 fw-bold mt-2 mb-0">{{ action_title }}</h1>
+      </div>
+      <a href="{% url 'shop' %}" class="btn btn-outline-secondary btn-sm rounded-pill">
+        <i class="bi bi-arrow-left me-1"></i> Back to Shop
+      </a>
+    </div>
+
+    <div class="bg-white p-4 p-md-5 rounded-4 border shadow-sm">
+      <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted">Product Name *</label>
+          {{ form.name }}
+          {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors }}</div>{% endif %}
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-muted">Category *</label>
+            {{ form.category }}
+            {% if form.category.errors %}<div class="text-danger small">{{ form.category.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-muted">Skin Type Suitability *</label>
+            {{ form.skin_type }}
+            {% if form.skin_type.errors %}<div class="text-danger small">{{ form.skin_type.errors }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted">Price in INR (₹) *</label>
+            {{ form.price }}
+            {% if form.price.errors %}<div class="text-danger small">{{ form.price.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted">Original MSRP in ₹</label>
+            {{ form.original_price }}
+            {% if form.original_price.errors %}<div class="text-danger small">{{ form.original_price.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small fw-bold text-muted">Inventory Stock Units *</label>
+            {{ form.stock }}
+            {% if form.stock.errors %}<div class="text-danger small">{{ form.stock.errors }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted">Marketing Badge</label>
+          {{ form.badge }}
+          <small class="text-muted">e.g. Bestseller, Barrier Boost, 100% Soap-Free</small>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted">Key Ingredients</label>
+          {{ form.ingredients }}
+          <small class="text-muted">e.g. Pro-Vitamin B5, Triple Purified Water, Vitamin E</small>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label small fw-bold text-muted">Full Description *</label>
+          {{ form.description }}
+          {% if form.description.errors %}<div class="text-danger small">{{ form.description.errors }}</div>{% endif %}
+        </div>
+
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-muted">Upload Image File</label>
+            {{ form.image }}
+            {% if form.image.errors %}<div class="text-danger small">{{ form.image.errors }}</div>{% endif %}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label small fw-bold text-muted">OR Image CDN URL</label>
+            {{ form.image_url }}
+            {% if form.image_url.errors %}<div class="text-danger small">{{ form.image_url.errors }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="d-flex gap-3">
+          <button type="submit" class="btn btn-glow-primary px-4 py-2 fs-6">
+            <i class="bi bi-check2-circle me-1"></i> Save Product
+          </button>
+          <a href="{% url 'shop' %}" class="btn btn-outline-secondary px-4 py-2">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

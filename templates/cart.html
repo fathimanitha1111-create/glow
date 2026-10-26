@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Bag | Glow &amp; Care Skincare{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    
+    <div class="d-flex align-items-center justify-content-between mb-4 pb-2 border-bottom">
+      <div>
+        <h1 class="brand-font display-6 fw-bold mb-1">Your Shopping Bag</h1>
+        <p class="text-muted small mb-0">Kind, gentle formulas ready for delivery.</p>
+      </div>
+      <a href="{% url 'shop' %}" class="btn btn-outline-secondary btn-sm rounded-pill">
+        <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+      </a>
+    </div>
+
+    {% if cart_items %}
+      <div class="row g-5">
+        
+        <!-- Cart Items List (Col 8) -->
+        <div class="col-lg-8">
+          
+          <!-- Free Shipping Notice Banner -->
+          <div class="p-3 mb-4 rounded-3 border bg-light">
+            {% if amount_needed_for_free_shipping > 0 %}
+              <div class="d-flex align-items-center gap-2 small text-dark">
+                <i class="bi bi-truck text-success fs-5"></i>
+                <span>Add <strong>₹{{ amount_needed_for_free_shipping }}</strong> more of kind skincare to unlock <strong>FREE Shipping</strong>!</span>
+              </div>
+            {% else %}
+              <div class="d-flex align-items-center gap-2 small text-success fw-bold">
+                <i class="bi bi-check-circle-fill fs-5"></i>
+                <span>Congratulations! Your order qualifies for <strong>FREE Express Delivery</strong> across India!</span>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Items Table -->
+          <div class="table-responsive bg-white rounded-4 border shadow-sm p-3">
+            <table class="table align-middle mb-0">
+              <thead class="table-light small text-uppercase text-muted">
+                <tr>
+                  <th scope="col" style="min-width: 260px;">Product</th>
+                  <th scope="col">Price</th>
+                  <th scope="col" class="text-center" style="width: 140px;">Quantity</th>
+                  <th scope="col" class="text-end">Subtotal</th>
+                  <th scope="col" class="text-center" style="width: 60px;"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in cart_items %}
+                  <tr>
+                    <!-- Product Info -->
+                    <td>
+                      <div class="d-flex align-items-center gap-3">
+                        <img src="{{ item.product.get_image_url }}" alt="{{ item.product.name }}" class="rounded-3 border" style="width: 65px; height: 65px; object-fit: cover;">
+                        <div>
+                          <span class="badge bg-light text-muted small border mb-1">{{ item.product.category.name }}</span>
+                          <h6 class="mb-0 fw-bold">
+                            <a href="{% url 'product_detail' item.product.pk %}" class="text-dark text-decoration-none">
+                              {{ item.product.name }}
+                            </a>
+                          </h6>
+                          <small class="text-muted d-block">{{ item.product.ingredients|truncatewords:4 }}</small>
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Price -->
+                    <td class="fw-semibold">{{ item.product.formatted_price }}</td>
+
+                    <!-- Quantity Controls -->
+                    <td class="text-center">
+                      <div class="d-flex align-items-center justify-content-center gap-1">
+                        <!-- Decrease -->
+                        <form method="POST" action="{% url 'update_cart' item.product.pk %}" class="d-inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="decrease">
+                          <button type="submit" class="btn btn-sm btn-outline-secondary py-0 px-2 rounded-circle" style="width: 28px; height: 28px;">-</button>
+                        </form>
+                        
+                        <span class="fw-bold px-2">{{ item.quantity }}</span>
+
+                        <!-- Increase -->
+                        <form method="POST" action="{% url 'update_cart' item.product.pk %}" class="d-inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="action" value="increase">
+                          <button type="submit" class="btn btn-sm btn-outline-secondary py-0 px-2 rounded-circle" style="width: 28px; height: 28px;" {% if item.quantity >= item.product.stock %}disabled{% endif %}>+</button>
+                        </form>
+                      </div>
+                      {% if item.quantity >= item.product.stock %}
+                        <small class="text-danger d-block mt-1" style="font-size: 0.7rem;">Max stock</small>
+                      {% endif %}
+                    </td>
+
+                    <!-- Item Total -->
+                    <td class="text-end fw-bold text-success-emphasis">
+                      {{ item.formatted_item_total }}
+                    </td>
+
+                    <!-- Remove Button -->
+                    <td class="text-center">
+                      <a href="{% url 'remove_from_cart' item.product.pk %}" class="text-danger p-1" title="Remove item" onclick="return confirm('Remove this product from your bag?');">
+                        <i class="bi bi-trash3"></i>
+                      </a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+
+        <!-- Order Summary Card (Col 4) -->
+        <div class="col-lg-4">
+          <div class="p-4 bg-white rounded-4 border shadow-sm sticky-top" style="top: 90px;">
+            <h4 class="brand-font fw-bold mb-3 pb-2 border-bottom">Order Summary</h4>
+            
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Bag Subtotal</span>
+              <span class="fw-bold">{{ formatted_subtotal }}</span>
+            </div>
+
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-muted">Estimated Delivery</span>
+              <span class="fw-bold {% if shipping_cost == 0 %}text-success{% endif %}">
+                {{ formatted_shipping }}
+              </span>
+            </div>
+
+            <hr class="my-3">
+
+            <div class="d-flex justify-content-between align-items-baseline mb-4">
+              <span class="h5 fw-bold mb-0">Total</span>
+              <span class="h4 fw-bold text-success-emphasis mb-0">{{ formatted_grand_total }}</span>
+            </div>
+
+            <a href="{% url 'checkout' %}" class="btn btn-glow-primary w-100 py-3 fs-6 mb-3">
+              Proceed to Checkout &rarr;
+            </a>
+
+            <!-- Safe payment pledge -->
+            <div class="small text-muted text-center pt-2 border-top">
+              <i class="bi bi-shield-lock-fill text-success me-1"></i>
+              Safe, kind demo checkout with zero transaction fees.
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    {% else %}
+      <!-- Empty Bag State -->
+      <div class="text-center py-5 bg-white rounded-4 border p-5 shadow-sm my-4">
+        <i class="bi bi-bag-x display-1 text-muted"></i>
+        <h3 class="brand-font fw-bold mt-4">Your Shopping Bag is Empty</h3>
+        <p class="text-muted mx-auto" style="max-width: 480px;">
+          Your skin deserves kind care. Explore our gentle face washes, rich moisturizers, and booster serums to find your perfect routine.
+        </p>
+        <a href="{% url 'shop' %}" class="btn btn-glow-primary px-4 py-2 mt-2">
+          Discover All Products &rarr;
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}
