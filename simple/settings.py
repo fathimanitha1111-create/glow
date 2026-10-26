@@ -18,7 +18,7 @@ load_dotenv(BASE_DIR / '.env')
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-simple-glow-skincare-secret-key-2026-xyz')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = True
 
 # ALLOWED_HOSTS: Read from environment variable (comma-separated), with safe local defaults
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
