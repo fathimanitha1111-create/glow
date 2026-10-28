@@ -43,12 +43,13 @@ else:
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
+    'simple.apps.MongoAdminConfig',
+    'simple.apps.MongoAuthConfig',
+    'simple.apps.MongoContentTypesConfig',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_mongodb_backend',
     # Custom simpleapp
     'simpleapp',
 ]
@@ -87,33 +88,31 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'simple.wsgi.application'
 
-# Database Configuration (MySQL / TiDB Cloud)
-# Configured via environment variables for security & serverless deployment
-db_host = os.environ.get("DB_HOST", "localhost")
-db_port = os.environ.get("DB_PORT", "4000")
+# Database Configuration (Local MongoDB)
+# Configured via environment variables with fallback to local mongod
+MONGO_HOST = os.environ.get("MONGO_HOST", "localhost")
+MONGO_PORT = os.environ.get("MONGO_PORT", "27017")
+MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME", os.environ.get("DB_NAME", "simple_db"))
+MONGO_USER = os.environ.get("MONGO_USER", "")
+MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD", "")
 
-db_options = {}
-# TiDB Cloud on port 4000 or any SSL-enforced MySQL provider requires SSL certificate
-if db_port == "4000" or os.environ.get("DB_SSL", "").lower() in ("true", "1") or "tidb" in db_host.lower():
-    try:
-        import certifi
-        db_options["ssl"] = {
-            "ca": certifi.where(),
-        }
-    except Exception:
-        pass
+if MONGO_USER and MONGO_PASSWORD:
+    MONGO_URI = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/"
+else:
+    MONGO_URI = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/"
+
+MONGO_URI = os.environ.get("MONGO_URI", MONGO_URI)
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.environ.get("DB_NAME", "simple_db"),
-        "USER": os.environ.get("DB_USER", "root"),
-        "PASSWORD": os.environ.get("DB_PASSWORD", ""),
-        "HOST": os.environ.get("DB_HOST", "localhost"),
-        "PORT": os.environ.get("DB_PORT", "4000"),
-        "OPTIONS": db_options,
-    }
+    'default': {
+        'ENGINE': 'django_mongodb_backend',
+        'HOST': MONGO_URI,
+        'NAME': MONGO_DB_NAME,
+    },
 }
+
+# Database Routers for MongoDB
+DATABASE_ROUTERS = ["django_mongodb_backend.routers.MongoRouter"]
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
@@ -140,5 +139,13 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Default primary key field type (MongoDB ObjectId)
+DEFAULT_AUTO_FIELD = 'django_mongodb_backend.fields.ObjectIdAutoField'
+
+# MongoDB-adapted migrations for core contrib apps
+MIGRATION_MODULES = {
+    'admin': 'mongo_migrations.admin',
+    'auth': 'mongo_migrations.auth',
+    'contenttypes': 'mongo_migrations.contenttypes',
+}
+

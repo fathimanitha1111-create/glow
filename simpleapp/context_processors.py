@@ -12,18 +12,18 @@ def cart_context(request):
 
     # Cart structure in session: {str(product_id): quantity}
     if cart:
-        product_ids = [int(pid) for pid in cart.keys() if pid.isdigit()]
-        products = Product.objects.filter(id__in=product_ids)
-        product_map = {p.id: p for p in products}
+        product_ids = [str(pid) for pid in cart.keys() if pid]
+        products = Product.objects.filter(pk__in=product_ids)
+        product_map = {str(p.pk): p for p in products}
 
         for pid_str, quantity in cart.items():
             try:
-                pid = int(pid_str)
+                pid = str(pid_str)
                 if pid in product_map:
                     qty = int(quantity)
                     cart_total_items += qty
                     cart_subtotal += product_map[pid].price * qty
-            except (ValueError, TypeError):
+            except (ValueError, TypeError, Exception):
                 continue
 
     categories = Category.objects.all()

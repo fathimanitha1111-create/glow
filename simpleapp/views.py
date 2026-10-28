@@ -160,8 +160,7 @@ def cart_view(request):
 
     for pid_str, quantity in cart.items():
         try:
-            pid = int(pid_str)
-            product = Product.objects.get(id=pid)
+            product = Product.objects.get(pk=pid_str)
             qty = int(quantity)
             item_total = product.price * qty
             subtotal += item_total
@@ -171,7 +170,7 @@ def cart_view(request):
                 'item_total': item_total,
                 'formatted_item_total': f"₹{item_total:,.2f}",
             })
-        except (Product.DoesNotExist, ValueError):
+        except (Product.DoesNotExist, ValueError, Exception):
             continue
 
     # Free shipping on orders over ₹999; otherwise ₹99 delivery fee
@@ -296,11 +295,11 @@ def checkout_view(request):
     cart_items = []
     for pid_str, quantity in cart.items():
         try:
-            p = Product.objects.get(id=int(pid_str))
+            p = Product.objects.get(pk=pid_str)
             qty = int(quantity)
             subtotal += p.price * qty
             cart_items.append({'product': p, 'quantity': qty})
-        except (Product.DoesNotExist, ValueError):
+        except (Product.DoesNotExist, ValueError, Exception):
             continue
 
     shipping_cost = Decimal('0.00') if subtotal >= Decimal('999.00') else Decimal('99.00')
