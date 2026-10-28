@@ -156,6 +156,7 @@ def run_tests():
 
     # Another user cannot see this order
     client2 = Client()
+    User.objects.filter(username='other_user').delete()
     other_user = User.objects.create_user(username='other_user', password='password123')
     client2.login(username='other_user', password='password123')
     other_resp = client2.get('/my-orders/')

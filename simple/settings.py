@@ -5,6 +5,7 @@ Configured for Glow & Care Skincare E-Commerce Website.
 Optimized for local development (SQLite) and production deployment on Vercel with Neon PostgreSQL.
 """
 import os
+import sys
 import pathlib
 from dotenv import load_dotenv
 import dj_database_url
@@ -90,8 +91,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'simple.wsgi.application'
 
 # Database Configuration
-# Uses PostgreSQL when DATABASE_URL is set (Neon / Supabase / etc.), with SQLite fallback for local development
+# Uses PostgreSQL when DATABASE_URL is set (Neon / Supabase / etc.), with SQLite fallback for local development only
 DATABASE_URL = os.getenv('DATABASE_URL', '').strip()
+is_vercel = os.getenv('VERCEL') == '1'
+is_production = is_vercel or not DEBUG
+is_collectstatic = 'collectstatic' in sys.argv
 
 if DATABASE_URL:
     DATABASES = {
@@ -102,17 +106,18 @@ if DATABASE_URL:
             ssl_require=True if ('neon.tech' in DATABASE_URL or 'sslmode=require' in DATABASE_URL or not DEBUG) else False,
         )
     }
+elif is_production and not is_collectstatic:
+    from django.core.exceptions import ImproperlyConfigured
+    raise ImproperlyConfigured(
+        "DATABASE_URL environment variable is missing in production on Vercel. "
+        "Please add DATABASE_URL (your hosted PostgreSQL connection string from Neon) "
+        "in Vercel Project Settings -> Environment Variables, then Redeploy."
+    )
 else:
-    # Local SQLite fallback (or /tmp/db.sqlite3 in Vercel serverless environment if DATABASE_URL not set)
-    if os.getenv('VERCEL') == '1':
-        db_path = pathlib.Path('/tmp/db.sqlite3')
-    else:
-        db_path = BASE_DIR / 'db.sqlite3'
-
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': db_path,
+            'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
 
