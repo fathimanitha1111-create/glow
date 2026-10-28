@@ -103,10 +103,16 @@ if DATABASE_URL:
         )
     }
 else:
+    # Local SQLite fallback (or /tmp/db.sqlite3 in Vercel serverless environment if DATABASE_URL not set)
+    if os.getenv('VERCEL') == '1':
+        db_path = pathlib.Path('/tmp/db.sqlite3')
+    else:
+        db_path = BASE_DIR / 'db.sqlite3'
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': db_path,
         }
     }
 
