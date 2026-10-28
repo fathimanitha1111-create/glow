@@ -1,3 +1,4 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -110,7 +111,6 @@ class Product(models.Model):
         """Formats the price in Indian Rupees (₹) with standard format."""
         try:
             val = float(self.price)
-            # Indian numbering format formatting helper
             s = f"{val:,.2f}"
             return f"₹{s}"
         except Exception:
@@ -133,8 +133,10 @@ class Order(models.Model):
         ('Processing', 'Processing'),
         ('Shipped', 'Shipped'),
         ('Delivered', 'Delivered'),
+        ('Cancelled', 'Cancelled'),
     ]
 
+    order_number = models.CharField(max_length=50, unique=True, blank=True, null=True, help_text="Unique customer order number")
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     full_name = models.CharField(max_length=150)
     email = models.EmailField()
@@ -149,8 +151,14 @@ class Order(models.Model):
     class Meta:
         ordering = ['-created_at']
 
+    def save(self, *args, **kwargs):
+        if not self.order_number:
+            self.order_number = f"GC-{uuid.uuid4().hex[:8].upper()}"
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"Order #{self.id} - {self.full_name} (₹{self.total_amount})"
+        num = self.order_number or f"#{self.id}"
+        return f"Order {num} - {self.full_name} (₹{self.total_amount})"
 
     def formatted_total(self):
         try:
@@ -164,13 +172,16 @@ class OrderItem(models.Model):
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    def save(self, *args, **kwargs):
+        if not self.subtotal:
+            self.subtotal = self.price * self.quantity
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.quantity}x {self.product.name} (Order #{self.order.id})"
-
-    @property
-    def subtotal(self):
-        return self.price * self.quantity
+        num = self.order.order_number or f"#{self.order.id}"
+        return f"{self.quantity}x {self.product.name} (Order {num})"
 
     def formatted_subtotal(self):
         try:

@@ -2,28 +2,26 @@
 Django settings for simple project.
 
 Configured for Glow & Care Skincare E-Commerce Website.
+Optimized for local development (SQLite) and production deployment on Vercel with Neon PostgreSQL.
 """
 import os
-from dotenv import load_dotenv 
-
-
 import pathlib
-
+from dotenv import load_dotenv
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
 
-# Load environment variables from .env file
-load_dotenv(BASE_DIR / '.env')
+# Load environment variables from .env file if present
+load_dotenv(BASE_DIR / ".env")
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-simple-glow-skincare-secret-key-2026-xyz')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-# ALLOWED_HOSTS: Read from environment variable (comma-separated), with safe local defaults
+# ALLOWED_HOSTS: Read from environment variable (comma-separated), with safe local & Vercel defaults
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
 if allowed_hosts_env:
     ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
@@ -34,22 +32,25 @@ for host in ['.vercel.app', 'localhost', '127.0.0.1', '[::1]', 'testserver']:
     if host not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(host)
 
-# CSRF_TRUSTED_ORIGINS: Required for secure HTTPS forms in production (comma-separated in .env)
+# CSRF_TRUSTED_ORIGINS: Required for secure HTTPS forms on Vercel and locally
 csrf_trusted_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
 if csrf_trusted_env:
     CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in csrf_trusted_env.split(',') if origin.strip()]
 else:
-    CSRF_TRUSTED_ORIGINS = ['https://*.vercel.app']
+    CSRF_TRUSTED_ORIGINS = [
+        'https://*.vercel.app',
+        'http://localhost:8000',
+        'http://127.0.0.1:8000'
+    ]
 
 # Application definition
 INSTALLED_APPS = [
-    'simple.apps.MongoAdminConfig',
-    'simple.apps.MongoAuthConfig',
-    'simple.apps.MongoContentTypesConfig',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_mongodb_backend',
     # Custom simpleapp
     'simpleapp',
 ]
@@ -88,31 +89,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'simple.wsgi.application'
 
-# Database Configuration (Local MongoDB)
-# Configured via environment variables with fallback to local mongod
-MONGO_HOST = os.environ.get("MONGO_HOST", "localhost")
-MONGO_PORT = os.environ.get("MONGO_PORT", "27017")
-MONGO_DB_NAME = os.environ.get("MONGO_DB_NAME", os.environ.get("DB_NAME", "simple_db"))
-MONGO_USER = os.environ.get("MONGO_USER", "")
-MONGO_PASSWORD = os.environ.get("MONGO_PASSWORD", "")
+# Database Configuration
+# Uses PostgreSQL when DATABASE_URL is set (Neon / Supabase / etc.), with SQLite fallback for local development
+DATABASE_URL = os.getenv('DATABASE_URL', '').strip()
 
-if MONGO_USER and MONGO_PASSWORD:
-    MONGO_URI = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/"
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=DATABASE_URL,
+            conn_max_age=600,
+            conn_health_checks=True,
+            ssl_require=True if ('neon.tech' in DATABASE_URL or 'sslmode=require' in DATABASE_URL or not DEBUG) else False,
+        )
+    }
 else:
-    MONGO_URI = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/"
-
-MONGO_URI = os.environ.get("MONGO_URI", MONGO_URI)
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django_mongodb_backend',
-        'HOST': MONGO_URI,
-        'NAME': MONGO_DB_NAME,
-    },
-}
-
-# Database Routers for MongoDB
-DATABASE_ROUTERS = ["django_mongodb_backend.routers.MongoRouter"]
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
@@ -133,19 +129,10 @@ WHITENOISE_USE_FINDERS = True
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-
 # Authentication URLs
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
-# Default primary key field type (MongoDB ObjectId)
-DEFAULT_AUTO_FIELD = 'django_mongodb_backend.fields.ObjectIdAutoField'
-
-# MongoDB-adapted migrations for core contrib apps
-MIGRATION_MODULES = {
-    'admin': 'mongo_migrations.admin',
-    'auth': 'mongo_migrations.auth',
-    'contenttypes': 'mongo_migrations.contenttypes',
-}
-
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

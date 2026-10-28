@@ -2,4 +2,10 @@
 echo "Building the project..."
 python3 -m pip install -r requirements.txt
 python3 manage.py collectstatic --noinput --clear
+
+if [ -n "$DATABASE_URL" ]; then
+    echo "Applying database migrations to PostgreSQL..."
+    python3 manage.py migrate --noinput
+fi
+
 echo "Build complete."

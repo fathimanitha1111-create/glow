@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Order History | Glow &amp; Care Skincare{% endblock %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container" style="max-width: 950px;">
+    
+    <!-- Page Header -->
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 pb-3 border-bottom gap-2">
+      <div>
+        <h1 class="brand-font display-6 fw-bold mb-1">My Orders</h1>
+        <p class="text-muted small mb-0">Track and review your kind-to-skin orders and delivery statuses.</p>
+      </div>
+      <a href="{% url 'shop' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+        <i class="bi bi-arrow-left me-1"></i> Continue Shopping
+      </a>
+    </div>
+
+    {% if orders %}
+      <div class="d-flex flex-column gap-4">
+        {% for order in orders %}
+          <div class="card border rounded-4 shadow-sm overflow-hidden bg-white">
+            
+            <!-- Order Header Bar -->
+            <div class="card-header bg-light py-3 px-4 border-bottom">
+              <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                  <div>
+                    <span class="text-muted small text-uppercase d-block" style="font-size: 0.72rem;">Order Number</span>
+                    <strong class="fs-6 text-dark">{{ order.order_number|default:order.id }}</strong>
+                  </div>
+                  <div class="border-start ps-3 d-none d-sm-block">
+                    <span class="text-muted small text-uppercase d-block" style="font-size: 0.72rem;">Placed On</span>
+                    <span class="small fw-semibold text-dark">{{ order.created_at|date:"M d, Y - h:i A" }}</span>
+                  </div>
+                </div>
+
+                <div class="d-flex align-items-center gap-3">
+                  <!-- Status Pill -->
+                  {% if order.status == 'Delivered' %}
+                    <span class="badge bg-success px-3 py-2 rounded-pill fw-semibold">
+                      <i class="bi bi-check-circle me-1"></i> Delivered
+                    </span>
+                  {% elif order.status == 'Shipped' %}
+                    <span class="badge bg-primary px-3 py-2 rounded-pill fw-semibold">
+                      <i class="bi bi-truck me-1"></i> Shipped
+                    </span>
+                  {% elif order.status == 'Processing' %}
+                    <span class="badge bg-info text-dark px-3 py-2 rounded-pill fw-semibold">
+                      <i class="bi bi-gear-wide me-1"></i> Processing
+                    </span>
+                  {% elif order.status == 'Cancelled' %}
+                    <span class="badge bg-danger px-3 py-2 rounded-pill fw-semibold">
+                      <i class="bi bi-x-circle me-1"></i> Cancelled
+                    </span>
+                  {% else %}
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
+                      <i class="bi bi-clock-history me-1"></i> {{ order.status }}
+                    </span>
+                  {% endif %}
+
+                  <span class="fs-5 fw-bold text-success-emphasis ms-2">
+                    {{ order.formatted_total }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Order Body / Items List -->
+            <div class="card-body p-4">
+              <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                  <thead class="small text-uppercase text-muted border-0">
+                    <tr>
+                      <th scope="col" style="min-width: 260px;">Product</th>
+                      <th scope="col" class="text-center">Price</th>
+                      <th scope="col" class="text-center">Quantity</th>
+                      <th scope="col" class="text-end">Subtotal</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in order.items.all %}
+                      <tr>
+                        <td>
+                          <div class="d-flex align-items-center gap-3">
+                            <img src="{{ item.product.get_image_url }}" alt="{{ item.product.name }}" class="rounded-3 border" style="width: 55px; height: 55px; object-fit: cover;">
+                            <div>
+                              <h6 class="mb-0 fw-bold">
+                                <a href="{% url 'product_detail' item.product.pk %}" class="text-dark text-decoration-none">
+                                  {{ item.product.name }}
+                                </a>
+                              </h6>
+                              <small class="text-muted">{{ item.product.category.name }}</small>
+                            </div>
+                          </div>
+                        </td>
+                        <td class="text-center fw-semibold">{{ item.product.formatted_price }}</td>
+                        <td class="text-center"><span class="badge bg-light text-dark border px-2 py-1">{{ item.quantity }}</span></td>
+                        <td class="text-end fw-bold text-success-emphasis">{{ item.formatted_subtotal }}</td>
+                      </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Shipping Info Footer -->
+              <div class="border-top pt-3 mt-3 d-flex flex-wrap align-items-center justify-content-between small text-muted gap-2">
+                <div>
+                  <i class="bi bi-geo-alt-fill text-success me-1"></i>
+                  <strong>Ship To:</strong> {{ order.full_name }} &bull; {{ order.address }}, {{ order.city }} ({{ order.postal_code }})
+                </div>
+                <div>
+                  <i class="bi bi-telephone-fill text-success me-1"></i>
+                  <strong>Phone:</strong> {{ order.phone }}
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <!-- Empty Orders State -->
+      <div class="bg-white p-5 rounded-4 border text-center shadow-sm my-4">
+        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+          <i class="bi bi-bag-x text-muted display-5"></i>
+        </div>
+        <h3 class="brand-font fw-bold mb-2">No Orders Found</h3>
+        <p class="text-muted small mb-4" style="max-width: 420px; margin: 0 auto;">
+          You haven't placed any kind skincare orders yet. Discover our gentle, 100% soap-free routines today!
+        </p>
+        <a href="{% url 'shop' %}" class="btn btn-glow-primary px-4 py-2">
+          Start Shopping &rarr;
+        </a>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}

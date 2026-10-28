@@ -17,6 +17,7 @@ urlpatterns = [
     path('cart/remove/<str:pk>/', views.remove_from_cart, name='remove_from_cart'),
     path('checkout/', views.checkout_view, name='checkout'),
     path('order-success/<str:order_id>/', views.order_success_view, name='order_success'),
+    path('my-orders/', views.order_history_view, name='order_history'),
 
     # Product CRUD (Staff/Admin)
     path('product/add/', views.product_create_view, name='product_create'),

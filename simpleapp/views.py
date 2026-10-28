@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db import transaction
 from django.db.models import Q
 from .models import Category, Product, Order, OrderItem
 from .forms import (
@@ -284,8 +285,9 @@ def remove_from_cart(request, pk):
     return redirect('cart')
 
 
+@transaction.atomic
 def checkout_view(request):
-    """Demo checkout without real payments; creates Order & OrderItems, deducts stock."""
+    """Secure checkout with backend stock checks and atomic transactions."""
     cart = request.session.get('cart', {})
     if not cart:
         messages.warning(request, "Your bag is empty. Please add items before checking out.")
@@ -297,10 +299,16 @@ def checkout_view(request):
         try:
             p = Product.objects.get(pk=pid_str)
             qty = int(quantity)
+            if qty <= 0:
+                continue
             subtotal += p.price * qty
             cart_items.append({'product': p, 'quantity': qty})
         except (Product.DoesNotExist, ValueError, Exception):
             continue
+
+    if not cart_items:
+        messages.warning(request, "Your bag has no valid products.")
+        return redirect('shop')
 
     shipping_cost = Decimal('0.00') if subtotal >= Decimal('999.00') else Decimal('99.00')
     grand_total = subtotal + shipping_cost
@@ -308,6 +316,17 @@ def checkout_view(request):
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
         if form.is_valid():
+            # Check stock availability for all items before placing the order
+            for item in cart_items:
+                p = item['product']
+                p.refresh_from_db()
+                if item['quantity'] > p.stock:
+                    messages.error(
+                        request,
+                        f"Sorry! '{p.name}' only has {p.stock} units available. Please adjust your bag quantity."
+                    )
+                    return redirect('cart')
+
             order = form.save(commit=False)
             if request.user.is_authenticated:
                 order.user = request.user
@@ -315,16 +334,17 @@ def checkout_view(request):
             order.status = 'Confirmed'
             order.save()
 
-            # Create order items & deduct stock
+            # Create order items & deduct stock atomically
             for item in cart_items:
+                p = item['product']
+                line_subtotal = p.price * item['quantity']
                 OrderItem.objects.create(
                     order=order,
-                    product=item['product'],
-                    price=item['product'].price,
-                    quantity=item['quantity']
+                    product=p,
+                    price=p.price,
+                    quantity=item['quantity'],
+                    subtotal=line_subtotal
                 )
-                # Deduct inventory
-                p = item['product']
                 p.stock = max(0, p.stock - item['quantity'])
                 p.save()
 
@@ -332,7 +352,8 @@ def checkout_view(request):
             request.session['cart'] = {}
             request.session.modified = True
 
-            messages.success(request, f"Order #{order.id} placed successfully! Thank you for choosing Glow & Care.")
+            order_identifier = order.order_number or f"#{order.id}"
+            messages.success(request, f"Order {order_identifier} placed successfully! Thank you for choosing Glow & Care.")
             return redirect('order_success', order_id=order.id)
     else:
         initial_data = {}
@@ -355,8 +376,21 @@ def checkout_view(request):
 
 def order_success_view(request, order_id):
     """Order confirmation page."""
-    order = get_object_or_404(Order, id=order_id)
+    try:
+        if str(order_id).isdigit():
+            order = get_object_or_404(Order, id=int(order_id))
+        else:
+            order = get_object_or_404(Order, order_number=str(order_id))
+    except Exception:
+        order = get_object_or_404(Order, pk=order_id)
     return render(request, 'order_success.html', {'order': order})
+
+
+@login_required
+def order_history_view(request):
+    """Customer view to check all their previous orders."""
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'orders.html', {'orders': orders})
 
 
 # --------------------------------------------------------------------------

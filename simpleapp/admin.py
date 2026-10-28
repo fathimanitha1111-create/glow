@@ -63,9 +63,10 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'full_name', 'email', 'phone', 'formatted_total', 'status', 'created_at')
+    list_display = ('order_number', 'full_name', 'email', 'phone', 'formatted_total', 'status', 'created_at')
     list_filter = ('status', 'created_at')
-    search_fields = ('full_name', 'email', 'phone', 'address')
+    search_fields = ('order_number', 'full_name', 'email', 'phone', 'address')
     list_editable = ('status',)
     inlines = [OrderItemInline]
-    readonly_fields = ('created_at',)
+    readonly_fields = ('order_number', 'created_at')
+

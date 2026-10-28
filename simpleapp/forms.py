@@ -48,6 +48,8 @@ class UserRegistrationForm(forms.ModelForm):
         cleaned_data = super().clean()
         password = cleaned_data.get('password')
         confirm_password = cleaned_data.get('confirm_password')
+        if password and len(password) < 6:
+            self.add_error('password', 'Password must be at least 6 characters long.')
         if password and confirm_password and password != confirm_password:
             self.add_error('confirm_password', 'Passwords do not match.')
         return cleaned_data
