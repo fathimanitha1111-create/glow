@@ -1,5 +1,7 @@
 """
-Diagnostic utility to verify PostgreSQL (Neon) or SQLite database connectivity for Glow & Care.
+Safe Diagnostic Utility to verify Database Connectivity for Glow & Care Skincare.
+Prints only the database vendor and connection success/failure.
+Never displays database URLs, passwords, or credentials.
 """
 import os
 import sys
@@ -22,55 +24,33 @@ import django
 django.setup()
 
 from django.db import connection
-from django.conf import settings
 
 def check_connection():
-    db_config = settings.DATABASES['default']
-    engine = db_config.get('ENGINE', '')
-    name = db_config.get('NAME', '')
-    host = db_config.get('HOST', 'localhost')
-    port = db_config.get('PORT', '')
+    vendor = connection.vendor
+    has_db_url = bool(os.getenv('DATABASE_URL', '').strip())
 
     print("=" * 60)
     print(" GLOW & CARE - DATABASE CONNECTIVITY CHECK")
     print("=" * 60)
-    print(f"[*] Engine   : {engine}")
-    print(f"[*] Database : {name}")
-    if host:
-        print(f"[*] Host     : {host}")
-    if port:
-        print(f"[*] Port     : {port}")
+    print(f"[*] Configured Vendor : {vendor}")
+    print(f"[*] Configuration     : {'DATABASE_URL' if has_db_url else 'Local SQLite fallback'}")
+    print("\n[*] Testing connection to database...")
 
-    database_url = os.getenv('DATABASE_URL', '').strip()
-    if database_url:
-        # Mask password in DATABASE_URL for display
-        import re
-        masked_url = re.sub(r':([^@]+)@', ':****@', database_url)
-        print(f"[*] Source   : DATABASE_URL ({masked_url})")
-    else:
-        print("[*] Source   : Local SQLite fallback (DATABASE_URL not set)")
-
-    print("\n[*] Attempting database connection...")
     try:
         connection.ensure_connection()
         with connection.cursor() as cursor:
-            if 'postgresql' in engine:
-                cursor.execute("SELECT version();")
-                version = cursor.fetchone()[0]
-                print(f"[+] Connection SUCCESSFUL to PostgreSQL!")
-                print(f"    Version: {version[:80]}...")
-            elif 'sqlite' in engine:
-                cursor.execute("SELECT sqlite_version();")
-                version = cursor.fetchone()[0]
-                print(f"[+] Connection SUCCESSFUL to SQLite!")
-                print(f"    Version: {version}")
-            else:
-                cursor.execute("SELECT 1;")
-                print(f"[+] Connection SUCCESSFUL to database!")
+            cursor.execute("SELECT 1;")
+            cursor.fetchone()
 
+        print(f"[+] SUCCESS: Successfully connected to {vendor} database!")
         return True
     except Exception as e:
-        print(f"[-] Connection FAILED: {e}")
+        # Sanitize exception message to ensure no connection URLs or passwords leak
+        err_msg = str(e)
+        import re
+        sanitized = re.sub(r'//[^@]+@', '//***:***@', err_msg)
+        print(f"[-] FAILED: Could not connect to {vendor} database.")
+        print(f"    Details: {sanitized}")
         return False
 
 if __name__ == '__main__':

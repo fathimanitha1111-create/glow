@@ -20,10 +20,11 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'simple.settings')
 django.setup()
 
+from django.db import connection
 from simpleapp.models import Category, Product
 
 def seed():
-    print("[*] Seeding categories and products into simple_db...")
+    print(f"[*] Seeding categories and products into {connection.vendor} database...")
 
     # 1. Categories
     categories_data = [
