@@ -1,0 +1,179 @@
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils.text import slugify
+
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=120, unique=True, blank=True)
+    description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='categories/', blank=True, null=True)
+    image_url = models.URLField(max_length=500, blank=True)
+
+    class Meta:
+        verbose_name_plural = 'Categories'
+        ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+    def get_image_url(self):
+        if self.image:
+            return self.image.url
+        if self.image_url:
+            return self.image_url
+        return 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=700&auto=format&fit=crop&q=80'
+
+
+class Product(models.Model):
+    SKIN_TYPE_CHOICES = [
+        ('all', 'All Skin Types'),
+        ('sensitive', 'Sensitive Skin'),
+        ('dry', 'Dry & Dehydrated'),
+        ('oily', 'Oily & Acne Prone'),
+        ('combination', 'Combination Skin'),
+    ]
+
+    name = models.CharField(max_length=200)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    description = models.TextField()
+    ingredients = models.TextField(blank=True, help_text="e.g. Pro-Vitamin B5, Triple Purified Water")
+    skin_type = models.CharField(max_length=50, choices=SKIN_TYPE_CHOICES, default='sensitive')
+    badge = models.CharField(max_length=50, blank=True, help_text="e.g. Bestseller, Soap-Free, Barrier Boost")
+    
+    # Pricing in INR
+    price = models.DecimalField(max_digits=10, decimal_places=2, help_text="Price in INR (₹)")
+    original_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="MSRP/Original Price in INR")
+    
+    # Images (Local uploads + CDN fallbacks from existing HTML)
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
+    image_url = models.URLField(max_length=500, blank=True, help_text="CDN or external image URL")
+
+    # Inventory
+    stock = models.PositiveIntegerField(default=25)
+    
+    # Social proof
+    rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.9)
+    review_count = models.PositiveIntegerField(default=150)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def in_stock(self):
+        return self.stock > 0
+
+    def get_image_url(self):
+        if self.image:
+            return self.image.url
+        if self.image_url:
+            return self.image_url
+        from django.templatetags.static import static
+        name_lower = self.name.lower()
+        if 'cica' in name_lower:
+            return static('images/calming-cica-b5-drops.jpg')
+        if 'niacinamide' in name_lower:
+            return static('images/10-niacinamide-serum.jpg')
+        if 'hyaluronic' in name_lower:
+            return static('images/hyaluronic-acid-serum.jpg')
+        if 'purifying' in name_lower:
+            return static('images/purifying-foaming-face-wash.jpg')
+        if 'soothing cream' in name_lower:
+            return static('images/soothing-cream-cleanser.jpg')
+        if 'refreshing' in name_lower:
+            return static('images/refreshing-facial-gel-wash.jpg')
+        if 'hydrating light' in name_lower:
+            return static('images/hydrating-light-moisturizer.jpg')
+        if 'vitamin c' in name_lower:
+            return static('images/vitamin-c-glow-serum.jpg')
+        if 'night' in name_lower:
+            return static('images/restoring-night-cream.jpg')
+        if 'replenishing' in name_lower or 'rich' in name_lower:
+            return static('images/replenishing-rich-moisturizer.jpg')
+        if 'water boost' in name_lower:
+            return static('images/water-booster-hydrating-gel.jpg')
+        if 'micellar' in name_lower:
+            return static('images/gentle-face-wash.jpg')
+        return static('images/gentle-face-wash.jpg')
+
+    def formatted_price(self):
+        """Formats the price in Indian Rupees (₹) with standard format."""
+        try:
+            val = float(self.price)
+            # Indian numbering format formatting helper
+            s = f"{val:,.2f}"
+            return f"₹{s}"
+        except Exception:
+            return f"₹{self.price}"
+
+    def formatted_original_price(self):
+        if not self.original_price:
+            return ""
+        try:
+            val = float(self.original_price)
+            return f"₹{val:,.2f}"
+        except Exception:
+            return f"₹{self.original_price}"
+
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Confirmed', 'Confirmed'),
+        ('Processing', 'Processing'),
+        ('Shipped', 'Shipped'),
+        ('Delivered', 'Delivered'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
+    full_name = models.CharField(max_length=150)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    address = models.TextField()
+    city = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=20)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Confirmed')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Order #{self.id} - {self.full_name} (₹{self.total_amount})"
+
+    def formatted_total(self):
+        try:
+            return f"₹{float(self.total_amount):,.2f}"
+        except Exception:
+            return f"₹{self.total_amount}"
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.quantity}x {self.product.name} (Order #{self.order.id})"
+
+    @property
+    def subtotal(self):
+        return self.price * self.quantity
+
+    def formatted_subtotal(self):
+        try:
+            return f"₹{float(self.subtotal):,.2f}"
+        except Exception:
+            return f"₹{self.subtotal}"

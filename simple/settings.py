@@ -97,7 +97,15 @@ is_vercel = os.getenv('VERCEL') == '1'
 is_production = is_vercel or not DEBUG
 is_collectstatic = 'collectstatic' in sys.argv
 
-if DATABASE_URL:
+# Check if DATABASE_URL is valid and not a placeholder template
+is_valid_remote_db = (
+    bool(DATABASE_URL) and
+    'YOUR_PASSWORD' not in DATABASE_URL and
+    'ep-xyz' not in DATABASE_URL and
+    'ep-solitary-voice' not in DATABASE_URL
+)
+
+if is_valid_remote_db:
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
