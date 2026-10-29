@@ -26,8 +26,10 @@ venv.bak/
 # Django local & runtime files
 *.log
 local_settings.py
-db.sqlite3
 db.sqlite3-journal
+db.sqlite3-shm
+db.sqlite3-wal
+*.backup*
 staticfiles/
 
 # User-uploaded media (keep folder structure, exclude user uploads)

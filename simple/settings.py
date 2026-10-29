@@ -16,11 +16,18 @@ BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
 # Load environment variables from .env file if present
 load_dotenv(BASE_DIR / ".env")
 
+is_vercel = os.getenv('VERCEL') == '1'
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-simple-glow-skincare-secret-key-2026-xyz')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', 'True').lower() in ('true', '1', 'yes')
+debug_env = os.getenv('DEBUG')
+if debug_env is not None:
+    DEBUG = debug_env.lower() in ('true', '1', 'yes')
+else:
+    # On Vercel production default to False; locally default to True
+    DEBUG = False if is_vercel else True
 
 # ALLOWED_HOSTS: Read from environment variable (comma-separated), with safe local & Vercel defaults
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS', '')
@@ -29,7 +36,7 @@ if allowed_hosts_env:
 else:
     ALLOWED_HOSTS = ['*']
 
-for host in ['.vercel.app', 'localhost', '127.0.0.1', '[::1]', 'testserver']:
+for host in ['.vercel.app', 'glow-withme.vercel.app', 'localhost', '127.0.0.1', '[::1]', 'testserver']:
     if host not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(host)
 
@@ -40,6 +47,7 @@ if csrf_trusted_env:
 else:
     CSRF_TRUSTED_ORIGINS = [
         'https://*.vercel.app',
+        'https://glow-withme.vercel.app',
         'http://localhost:8000',
         'http://127.0.0.1:8000'
     ]
@@ -91,11 +99,9 @@ TEMPLATES = [
 WSGI_APPLICATION = 'simple.wsgi.application'
 
 # Database Configuration
-# Uses PostgreSQL when DATABASE_URL is set (Neon / Supabase / etc.), with SQLite fallback for local development only
+# Uses PostgreSQL when a valid DATABASE_URL is set (Neon / Supabase / etc.)
+# Otherwise uses SQLite (persisted locally; copied to writable /tmp on Vercel serverless)
 DATABASE_URL = os.getenv('DATABASE_URL', '').strip()
-is_vercel = os.getenv('VERCEL') == '1'
-is_production = is_vercel or not DEBUG
-is_collectstatic = 'collectstatic' in sys.argv
 
 # Check if DATABASE_URL is valid and not a placeholder template
 is_valid_remote_db = (
@@ -114,18 +120,27 @@ if is_valid_remote_db:
             ssl_require=True if ('neon.tech' in DATABASE_URL or 'sslmode=require' in DATABASE_URL or not DEBUG) else False,
         )
     }
-elif is_production and not is_collectstatic:
-    from django.core.exceptions import ImproperlyConfigured
-    raise ImproperlyConfigured(
-        "DATABASE_URL environment variable is missing in production on Vercel. "
-        "Please add DATABASE_URL (your hosted PostgreSQL connection string from Neon) "
-        "in Vercel Project Settings -> Environment Variables, then Redeploy."
-    )
 else:
+    if is_vercel:
+        import shutil
+        import tempfile
+        tmp_dir = pathlib.Path(tempfile.gettempdir())
+        tmp_db = tmp_dir / 'db.sqlite3'
+        src_db = BASE_DIR / 'db.sqlite3'
+        # Copy pre-populated SQLite database to writable temp directory on cold start
+        if not tmp_db.exists() and src_db.exists():
+            try:
+                shutil.copy2(src_db, tmp_db)
+            except Exception:
+                pass
+        db_path = tmp_db
+    else:
+        db_path = BASE_DIR / 'db.sqlite3'
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            'NAME': db_path,
         }
     }
 
@@ -146,7 +161,8 @@ WHITENOISE_USE_FINDERS = True
 
 # Media files (Product uploads)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+import tempfile
+MEDIA_ROOT = (pathlib.Path(tempfile.gettempdir()) / 'media') if is_vercel else (BASE_DIR / 'media')
 
 # Authentication URLs
 LOGIN_URL = 'login'
