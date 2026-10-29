@@ -1,0 +1,453 @@
+/* ==========================================================================
+   GLOW & CARE - SHOP & CATEGORY STYLESHEET (shop.css)
+   Dedicated styles for Shop, Face Wash, Moisturizers & Serums pages
+   Pure CSS3 - Responsive & Accessible
+   ========================================================================== */
+
+/* --- BREADCRUMBS --- */
+.breadcrumbs {
+  padding: 16px 0;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.breadcrumbs-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.breadcrumbs-item a {
+  color: var(--color-text-muted);
+  transition: var(--transition-fast);
+}
+
+.breadcrumbs-item a:hover {
+  color: var(--color-green-dark);
+  text-decoration: underline;
+}
+
+.breadcrumbs-separator {
+  color: var(--color-text-light);
+  font-size: 0.75rem;
+}
+
+.breadcrumbs-item.active {
+  color: var(--color-green-dark);
+  font-weight: 600;
+}
+
+/* --- CATEGORY HERO / SHOP HEADER --- */
+.category-hero {
+  background: linear-gradient(135deg, var(--color-offwhite) 0%, var(--color-mint-light) 100%);
+  padding: 48px 0 56px 0;
+  border-bottom: 1px solid var(--color-border);
+  position: relative;
+}
+
+.category-hero-content {
+  max-width: 760px;
+}
+
+.category-hero-tag {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--color-mint-accent);
+  background-color: var(--color-white);
+  border: 1px solid var(--color-mint-soft);
+  padding: 5px 14px;
+  border-radius: var(--radius-full);
+  margin-bottom: 14px;
+}
+
+.category-hero-title {
+  font-family: var(--font-serif);
+  font-size: 2.8rem;
+  font-weight: 600;
+  color: var(--color-green-dark);
+  line-height: 1.2;
+  margin-bottom: 14px;
+}
+
+.category-hero-desc {
+  font-size: 1.05rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.category-benefit-pills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.benefit-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  background-color: var(--color-white);
+  color: var(--color-green-dark);
+  border: 1px solid var(--color-mint-soft);
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-xs);
+}
+
+.benefit-pill-icon {
+  color: var(--color-mint-accent);
+  font-size: 0.9rem;
+}
+
+/* --- CATEGORY NAVIGATION FILTER BAR --- */
+.category-nav-bar {
+  background-color: var(--color-white);
+  padding: 18px 0;
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 76px;
+  z-index: 900;
+}
+
+.category-pills-list {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.category-pills-list::-webkit-scrollbar {
+  height: 4px;
+}
+
+.category-pills-list::-webkit-scrollbar-thumb {
+  background: var(--color-mint-soft);
+  border-radius: 4px;
+}
+
+.category-pill-link {
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-offwhite);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  transition: var(--transition-fast);
+}
+
+.category-pill-link:hover {
+  background-color: var(--color-mint-light);
+  color: var(--color-green-dark);
+  border-color: var(--color-mint-soft);
+}
+
+.category-pill-link.active {
+  background-color: var(--color-green-dark);
+  color: var(--color-white);
+  border-color: var(--color-green-dark);
+}
+
+/* --- SHOP MAIN CONTAINER LAYOUT (Sidebar + Grid) --- */
+.shop-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 36px;
+  align-items: start;
+}
+
+/* Filter Sidebar */
+.shop-sidebar {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  position: sticky;
+  top: 150px;
+}
+
+.sidebar-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-green-dark);
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.filter-group {
+  margin-bottom: 22px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.filter-group:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.filter-group-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-green-dark);
+  margin-bottom: 12px;
+}
+
+.filter-options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.filter-option:hover {
+  color: var(--color-green-dark);
+}
+
+.filter-option input[type="checkbox"] {
+  accent-color: var(--color-mint-accent);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.filter-count {
+  margin-left: auto;
+  font-size: 0.75rem;
+  color: var(--color-text-light);
+  background-color: var(--color-offwhite);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+}
+
+/* Clean ingredients badge highlight inside sidebar */
+.sidebar-promise-box {
+  margin-top: 24px;
+  background-color: var(--color-mint-light);
+  border: 1px solid var(--color-mint-soft);
+  border-radius: var(--radius-sm);
+  padding: 16px;
+}
+
+.sidebar-promise-box h4 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-green-dark);
+  margin-bottom: 6px;
+}
+
+.sidebar-promise-box p {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+/* Catalog Top Controls Bar */
+.catalog-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.catalog-count {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.catalog-count strong {
+  color: var(--color-green-dark);
+}
+
+.catalog-sort {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.sort-select {
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-white);
+  color: var(--color-text-main);
+  font-size: 0.85rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.sort-select:focus {
+  border-color: var(--color-mint-accent);
+}
+
+/* Category Detail Card / Guide Banner */
+.category-guide-box {
+  background-color: var(--color-beige-light);
+  border: 1px solid var(--color-beige-border);
+  border-radius: var(--radius-md);
+  padding: 30px;
+  margin-top: 50px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: center;
+}
+
+.category-guide-box h3 {
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  color: var(--color-green-dark);
+  margin-bottom: 10px;
+}
+
+.category-guide-box p {
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.guide-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.guide-step-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.875rem;
+  color: var(--color-text-main);
+}
+
+.guide-step-icon {
+  color: var(--color-mint-accent);
+  font-weight: 700;
+}
+
+/* --- PURE CSS FAQ ACCORDION (Details & Summary) --- */
+.faq-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: var(--transition-fast);
+}
+
+.faq-item:hover {
+  border-color: var(--color-mint-soft);
+}
+
+.faq-summary {
+  padding: 18px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-green-dark);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-white);
+  transition: var(--transition-fast);
+  user-select: none;
+}
+
+.faq-summary::-webkit-details-marker {
+  display: none;
+}
+
+.faq-summary::after {
+  content: '+';
+  font-size: 1.3rem;
+  color: var(--color-mint-accent);
+  font-weight: 400;
+  line-height: 1;
+  transition: transform 0.25s ease;
+}
+
+.faq-item[open] .faq-summary::after {
+  content: '−';
+  transform: rotate(180deg);
+}
+
+.faq-item[open] .faq-summary {
+  background-color: var(--color-mint-light);
+}
+
+.faq-content {
+  padding: 18px 24px;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  border-top: 1px solid var(--color-border-light);
+  background-color: var(--color-white);
+}
+
+/* --- RESPONSIVE ADJUSTMENTS FOR SHOP --- */
+@media (max-width: 992px) {
+  .shop-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .shop-sidebar {
+    position: static;
+    display: none; /* Hide sidebar filter on small screens in favor of top category pills */
+  }
+
+  .category-guide-box {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .category-hero {
+    padding: 36px 0;
+  }
+
+  .category-hero-title {
+    font-size: 2.2rem;
+  }
+
+  .category-nav-bar {
+    top: 70px;
+  }
+}
