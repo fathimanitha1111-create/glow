@@ -45,3 +45,4 @@ media/*
 Thumbs.db
 Desktop.ini
 *.bak
+*.backup

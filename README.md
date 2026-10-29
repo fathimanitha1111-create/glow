@@ -1,4 +1,4 @@
-# Glow & Care Skincare — MongoDB E-Commerce Platform
+# glowithnitha — Glow & Care Skincare E-Commerce Platform
 
 A clean, responsive, full-stack skincare e-commerce website built with **Django 5.2 (LTS)** and **MongoDB** (local database engine).
 
@@ -89,3 +89,4 @@ DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
 ```
+# glowithnitha
